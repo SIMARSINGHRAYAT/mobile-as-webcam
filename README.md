@@ -1,210 +1,210 @@
-# MOBILE as WEBCAM
+# MOBILE as WEBCAM - Pure Web Application
 
-Live deployment: https://mobile-as-webcam.vercel.app
+Turn your smartphone into a high-quality wireless webcam for your computer using just a web browser. No desktop app installation required!
 
-**Turn your smartphone into a high-quality wireless webcam for Windows PC with native virtual camera support!**
+## 🎯 Features
 
-## ✨ New Features
+- **Zero Installation** - Works entirely in your browser
+- **WebRTC Streaming** - Low-latency peer-to-peer video
+- **QR Code Pairing** - Instant connection between devices
+- **HD Quality** - Up to 1080p camera support
+- **Cross-Platform** - Works on any device with a modern browser
+- **Free & Open Source** - Deploy anywhere (Vercel, Netlify, etc.)
 
-- 🎥 **Native Windows Virtual Camera**: Unity Capture driver integration - works directly with Google Meet, Zoom, Teams without OBS!
-- 🔌 **Chrome Extension**: Share your screen/window directly to video conferencing apps via the virtual camera
-- 📱 **Mobile WebRTC Streaming**: High-quality, low-latency video from your phone's camera
-- 💻 **Desktop App**: Electron-based Windows application with modern UI
+## 🚀 Quick Start
 
-## Quick Start
+### For Video Calls (Google Meet, Zoom, Teams)
 
-### For Video Conferencing (Google Meet, Zoom, Teams)
+1. **Deploy the App**
+   ```bash
+   # Clone and install
+   git clone <your-repo-url>
+   cd mobile-as-webcam
+   npm install
+   
+   # Run locally
+   npm run dev
+   
+   # Or deploy to Vercel
+   vercel deploy
+   ```
 
-1. **Install the Desktop App** (Windows)
-   - Download and run the Electron app
-   - Install the Unity Capture virtual camera driver (one-click from the app)
-   - Restart the app after installation
+2. **On Your Computer**
+   - Visit your deployed URL (e.g., `https://your-app.vercel.app`)
+   - Click "Get Started" → "Continue to App"
+   - Click "Generate Pairing Code"
+   - Keep this page open
 
-2. **Connect Your Phone**
-   - Open the app and go to "Connect Device" tab
-   - Scan QR code or enter pairing code on your phone
-   - Visit the HTTPS URL on your mobile browser
+3. **On Your Phone**
+   - Scan the QR code with your phone's camera
+   - OR visit the URL shown on desktop
+   - Enter the 6-digit device code
+   - Tap "Start Camera Stream"
+   - Grant camera permissions when prompted
 
-3. **Use in Video Calls**
-   - In Google Meet/Zoom/Teams, open video settings
-   - Select **"Unity Capture"** as your camera
-   - Your phone camera now appears as a webcam!
+4. **In Your Video Call**
+   
+   **Option A: Using OBS Studio (Recommended)**
+   - Download OBS Studio: https://obsproject.com
+   - Add "Window Capture" source → Select your browser window showing the phone feed
+   - Click "Start Virtual Camera" in OBS controls
+   - In Google Meet/Zoom/Teams: Select "OBS Virtual Camera" as your camera
+   
+   **Option B: Using Chrome Extension**
+   - Load the extension from `/extension` folder
+   - Click extension icon → Start Sharing
+   - Select the browser window with phone feed
+   - The screen appears as a virtual camera via OBS
+   
+   **Option C: Screen Share Directly**
+   - In Google Meet/Zoom: Share screen → Select the browser tab with phone feed
+   - Participants will see your phone camera feed
 
-### Chrome Extension (Screen Sharing)
-
-1. **Load the Extension**
-   - Open Chrome → `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked" → select the `extension` folder
-
-2. **Share Your Screen**
-   - Click the extension icon
-   - Choose "Full Screen" or "Window"
-   - Click "Start Sharing"
-   - Your screen appears in the Unity Capture virtual camera!
-
-3. **Use in Video Apps**
-   - Select "Unity Capture" camera in your video conferencing app
-   - Your shared screen is now visible to all participants
-
-## Vercel Deployment
-
-1. Import this repository into Vercel with the Next.js framework
-2. Add `DATABASE_URL` for PostgreSQL (Neon, Supabase, or Vercel Postgres)
-3. Run the SQL in `drizzle/0000_initial.sql` against your database
-4. Redeploy - API endpoints now use persistent storage
-
-**Important**: Mobile camera requires HTTPS. The Vercel deployment provides this automatically.
-
-**For cross-network connectivity** (phone on cellular, PC on home WiFi):
-- Configure `NEXT_PUBLIC_TURN_URL`, `NEXT_PUBLIC_TURN_USERNAME`, `NEXT_PUBLIC_TURN_PASSWORD`
-- Use a TURN provider like Twilio, Xirsys, or coturn server
-
-## Architecture
+## 🔧 How It Works
 
 ```
-┌─────────────┐     WebRTC      ┌──────────────┐     USB/WiFi    ┌──────────────┐
-│  Mobile     │◄───────────────►│  Vercel      │◄───────────────►│  Desktop App │
-│  Browser    │  Signaling API  │  (Next.js)   │  Polling        │  (Electron)  │
-│  (Camera)   │                 │              │                 │              │
-└─────────────┘                 └──────────────┘                 └──────┬───────┘
-                                                                        │
-                                                                        │ Virtual Camera
-                                                                        ▼
-                                                             ┌──────────────┐
-                                                             │ Unity Capture│
-                                                             │ Driver       │
-                                                             └──────┬───────┘
-                                                                    │
-                    ┌───────────────────────────────────────────────┼───────────────────────────────────┐
-                    │                                               │                                   │
-                    ▼                                               ▼                                   ▼
-          ┌─────────────────┐                            ┌─────────────────┐                 ┌─────────────────┐
-          │  Google Meet    │                            │  Zoom           │                 │  Microsoft Teams│
-          │  (Select Unity  │                            │  (Select Unity  │                 │  (Select Unity  │
-          │   Capture)      │                            │   Capture)      │                 │   Capture)      │
-          └─────────────────┘                            └─────────────────┘                 └─────────────────┘
+┌─────────────┐                    ┌──────────────┐                    ┌─────────────┐
+│   Desktop   │◄──── Signaling ───►│    Vercel    │◄──── Signaling ───►│    Mobile   │
+│   Browser   │     API (HTTP)     │  Next.js App │     API (HTTP)     │   Browser   │
+│             │                    │              │                    │             │
+│  WebRTC     │◄─────── P2P ──────►│              │◄─────── P2P ──────►│   WebRTC    │
+│  Peer Conn  │     Video Stream   │              │     Video Stream   │   Camera    │
+└─────────────┘                    └──────────────┘                    └─────────────┘
+       │                                                                       
+       │ Display phone feed                                                   
+       ▼                                                                       
+┌─────────────┐                                                              
+│ OBS Studio  │  (Optional: For virtual camera)                              
+│ Window Cap  │                                                              
+└─────────────┘                                                              
+       │                                                                      
+       │ Virtual Camera Output                                                
+       ▼                                                                      
+┌─────────────┐                                                              
+│ Google Meet │                                                              
+│ Zoom        │                                                              
+│ Teams       │                                                              
+└─────────────┘                                                              
 ```
 
-## Components
+## 📁 Project Structure
 
-### Desktop App (Electron)
-- Windows-native application with modern UI
-- Unity Capture driver download & installation
-- Virtual camera configuration tools
-- Real-time video preview
-- WebRTC peer connection management
-
-### Chrome Extension
-- Manifest V3 compatible
-- Screen/window capture via `getDisplayMedia` API
-- Integration with desktop app
-- Works with all video conferencing platforms
-
-### Mobile Interface
-- Responsive web app (PWA-ready)
-- Camera selection (front/back)
-- Quality controls
-- Connection status monitoring
-
-### Backend (Vercel + PostgreSQL)
-- Pairing session management
-- WebRTC signaling (SDP exchange)
-- Device registration
-- Persistent storage with Drizzle ORM
-
-## Local Development
-
-```bash
-npm ci
-npm run dev
+```
+mobile-as-webcam/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── pairing/      # Session creation & management
+│   │   │   ├── signaling/    # WebRTC signaling messages
+│   │   │   └── turn/         # STUN/TURN server config
+│   │   ├── mobile/           # Mobile camera interface
+│   │   ├── page.tsx          # Desktop main page
+│   │   └── layout.tsx        # Root layout
+│   └── components/
+│       ├── WelcomePage.tsx   # Landing page
+│       ├── HowToUsePage.tsx  # Instructions
+│       └── MainDesktopApp.tsx # Main desktop UI
+├── extension/                # Chrome extension for screen capture
+├── package.json
+└── README.md
 ```
 
-Without `DATABASE_URL`, local development uses in-memory pairing data. For production-like testing, configure a PostgreSQL database.
+## 🛠️ Technology Stack
 
-## Chrome Extension Installation
+- **Frontend**: Next.js 16, React 19, TypeScript
+- **Styling**: Tailwind CSS 4
+- **Video**: WebRTC (peer-to-peer streaming)
+- **Signaling**: HTTP polling API (Next.js API Routes)
+- **Deployment**: Vercel (serverless functions)
+- **Icons**: Lucide React
 
-### Development Mode
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" (toggle in top-right)
-3. Click "Load unpacked"
-4. Select the `extension` folder from this repository
-5. Extension icon appears in toolbar
+## ⚠️ Important Limitations
 
-### Production (Chrome Web Store)
-1. Package the extension:
-   - Go to `chrome://extensions/`
-   - Click "Pack extension"
-   - Select the `extension` folder
-   - Generate `.crx` file
-2. Submit to Chrome Web Store
-3. Users install from store
+### Why You Need OBS or Similar Software
 
-## Troubleshooting
+**Browser websites cannot create virtual camera devices directly** due to security restrictions. Websites run in a sandboxed environment and cannot:
+- Install kernel-level drivers
+- Create DirectShow devices
+- Access system-level camera interfaces
 
-### Virtual Camera Not Showing
-- Ensure Unity Capture driver is installed (check in Desktop App)
-- Restart your computer after driver installation
-- Check Device Manager → Imaging Devices for "Unity Capture"
+**Solutions:**
 
-### Extension Not Working
-- Make sure extension is enabled in `chrome://extensions/`
-- Grant screen recording permissions when prompted
-- Try reloading the extension
+1. **OBS Studio** (Free, Recommended)
+   - Captures browser window showing phone feed
+   - Creates virtual camera output
+   - Works with all video conferencing apps
+   - Download: https://obsproject.com
 
-### Connection Issues (Phone ↔ PC)
-- Both devices must be on same network OR configure TURN server
-- Firewall may block WebRTC - allow UDP ports
-- Use HTTPS URL for mobile (required for camera access)
+2. **Unity Capture** (Third-party driver)
+   - Native Windows virtual camera driver
+   - Requires separate installation
+   - GitHub: https://github.com/schellingb/UnityCapture
 
-### Poor Video Quality
-- Check network bandwidth
-- Reduce resolution in mobile camera settings
-- Close other bandwidth-intensive applications
+3. **Chrome Extension** (Included)
+   - Screen capture to existing virtual camera
+   - See `/extension` folder
+   - Requires virtual camera software running
 
-## Technology Stack
+## 🌐 Deployment
 
-- **Frontend**: Next.js 16, React, TypeScript, TailwindCSS
-- **Desktop**: Electron, IPC
-- **Mobile**: WebRTC, getUserMedia API
-- **Backend**: Next.js API Routes, Serverless Functions
-- **Database**: PostgreSQL, Drizzle ORM
-- **Virtual Camera**: Unity Capture (DirectShow filter)
-- **Extension**: Chrome Manifest V3
+### Deploy to Vercel
 
-## Limitations & Solutions
+1. Push code to GitHub
+2. Go to https://vercel.com
+3. Import your repository
+4. Deploy (no environment variables needed for basic setup)
 
-| Limitation | Solution |
-|------------|----------|
-| No native Windows camera driver | ✅ Unity Capture third-party driver (installed via app) |
-| HTTP polling for signaling | Works reliably; WebSocket upgrade possible in future |
-| HTTPS required for mobile camera | ✅ Provided by Vercel deployment |
-| Cross-NAT connectivity | ✅ Configurable TURN server support |
-| OBS dependency | ✅ Eliminated with Unity Capture driver |
+### Environment Variables (Optional)
 
-## Security
+For production TURN servers (better connectivity across networks):
 
-- WebRTC encryption (DTLS-SRTP)
-- Secure pairing codes (time-limited)
-- HTTPS enforcement for camera access
-- No video data stored on server (peer-to-peer streaming)
+```env
+NEXT_PUBLIC_TURN_URL=turn:your-turn-server.com:3478
+NEXT_PUBLIC_TURN_USERNAME=your-username
+NEXT_PUBLIC_TURN_PASSWORD=your-password
+```
 
-## Contributing
+## 🔒 Privacy & Security
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly (desktop + mobile + extension)
-5. Submit a pull request
+- **Peer-to-Peer**: Video streams directly between devices (not through servers)
+- **Signaling Only**: Servers only handle connection metadata
+- **No Recording**: No video is stored or recorded
+- **HTTPS Required**: Camera access requires secure context
+- **Session Expiry**: Pairing sessions expire after 5 minutes
 
-## License
+## 🐛 Troubleshooting
 
-MIT License - See LICENSE file for details
+### Camera Not Working on Mobile
+- Ensure you're using HTTPS (required for camera access)
+- Try Chrome or Safari mobile browsers
+- Check camera permissions in browser settings
+- Close other apps using the camera
 
-## Support
+### Connection Issues
+- Both devices must be on the same network for best results
+- If behind NAT/firewall, configure TURN servers
+- Refresh both pages and try again
+- Check browser console for errors
 
-For issues, questions, or feature requests, please open an issue on GitHub.
+### Video Not Appearing in Video Calls
+- Make sure OBS Virtual Camera is started
+- Select "OBS Virtual Camera" in your video call settings
+- Ensure OBS is capturing the correct browser window
+- Try restarting OBS and the browser
+
+## 📝 License
+
+MIT License - Free to use, modify, and distribute
+
+## 🤝 Contributing
+
+Contributions welcome! Areas for improvement:
+- WebSocket signaling for lower latency
+- Better mobile UI/UX
+- Additional camera controls (zoom, exposure)
+- Multi-device support
+- Audio streaming from mobile
 
 ---
 
-**Built with ❤️ for remote workers, content creators, and anyone who needs a better webcam solution!**
+**Made with ❤️ using Next.js and WebRTC**
