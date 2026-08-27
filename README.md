@@ -13,6 +13,18 @@ The mobile camera page must be opened through the Vercel HTTPS URL. For phones a
 
 The desktop app currently displays the received camera stream in its own preview. Google Meet, Zoom, Teams, and OBS require a native Windows virtual-camera driver; Partner Center publication alone does not create that device.
 
+## Use the camera in Google Meet now
+
+OBS Studio is the supported bridge for the current build:
+
+1. Open `MOBILE as WEBCAM` and pair the phone.
+2. In OBS, add a `Window Capture` source and select the desktop app preview.
+3. Crop the source to the live camera frame.
+4. Click `Start Virtual Camera` in OBS.
+5. In Google Meet, open camera settings and select `OBS Virtual Camera`.
+
+This exposes the received phone video to browser applications without pretending that the Electron app is already a native Windows camera device.
+
 ## Local development
 
 ```bash
