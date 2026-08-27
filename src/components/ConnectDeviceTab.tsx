@@ -73,9 +73,7 @@ export function ConnectDeviceTab({
       const data = await res.json();
       if (data.success) {
         setSession(data.session);
-        const origin = data.session.publicHost
-          ? `http://${data.session.publicHost}:3000`
-          : window.location.origin;
+        const origin = "https://mobile-as-webcam.vercel.app";
         const fullUrl = `${origin}/mobile?session=${data.session.id}&token=${data.session.token}`;
         setMobileUrl(fullUrl);
 

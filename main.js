@@ -8,6 +8,7 @@ const http = require("http");
 let mainWindow;
 let nextServerProcess;
 const PORT = 3000; // You can dynamically find a free port if preferred
+const DEPLOYED_APP_URL = "https://mobile-as-webcam.vercel.app";
 
 function getLanAddress() {
   return new Promise((resolve) => {
@@ -45,7 +46,7 @@ function createWindow() {
     autoHideMenuBar: true,
   });
 
-  mainWindow.loadURL(`http://127.0.0.1:${PORT}`);
+  mainWindow.loadURL(app.isPackaged ? DEPLOYED_APP_URL : `http://127.0.0.1:${PORT}`);
 
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -54,6 +55,10 @@ function createWindow() {
 
 async function startNextServer() {
   const isDev = !app.isPackaged;
+  if (!isDev) {
+    createWindow();
+    return;
+  }
   const publicHost = await getLanAddress();
   
   if (isDev) {

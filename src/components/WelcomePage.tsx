@@ -30,7 +30,7 @@ export function WelcomePage({ onGetStarted }: WelcomePageProps) {
         {/* Application Branding */}
         <Image
           src="/logo.png"
-          alt="Mobile AS Webcam"
+          alt="MOBILE as WEBCAM"
           width={190}
           height={190}
           priority
