@@ -1,137 +1,102 @@
 "use client";
 
 import React from "react";
-import {
-  Smartphone,
-  QrCode,
-  ShieldCheck,
-  Wifi,
-  Video,
-  MonitorCheck,
-  CheckCircle2,
-  ArrowRight,
-} from "lucide-react";
+import { ArrowRight, Smartphone, Laptop, Video } from "lucide-react";
 
 interface HowToUsePageProps {
   onContinue: () => void;
 }
 
 export function HowToUsePage({ onContinue }: HowToUsePageProps) {
-  const steps = [
-    {
-      num: 1,
-      title: "Open Phone Browser",
-      desc: "Open the Mobile AS Webcam web page on your phone browser (Chrome, Safari, Edge, Firefox). No mobile app download or installation required.",
-      icon: Smartphone,
-    },
-    {
-      num: 2,
-      title: "Scan QR Code",
-      desc: "Scan the secure temporary QR code displayed on this Windows application using your phone camera.",
-      icon: QrCode,
-    },
-    {
-      num: 3,
-      title: "Allow Permissions",
-      desc: "Grant temporary camera and microphone access when prompted by your mobile web browser.",
-      icon: ShieldCheck,
-    },
-    {
-      num: 4,
-      title: "Establish Connection",
-      desc: "The phone securely pairs with this Windows computer over Same Wi-Fi, USB Tethering, or Remote Internet via WebRTC.",
-      icon: Wifi,
-    },
-    {
-      num: 5,
-      title: "Start Live Stream",
-      desc: "Tap 'Start Camera' on your phone to transmit ultra low-latency HD video directly into Windows.",
-      icon: Video,
-    },
-    {
-      num: 6,
-      title: "Select in Windows Apps",
-      desc: "Select 'Mobile AS Webcam' inside Microsoft Teams, Zoom, Google Meet, OBS Studio, Discord, or Skype.",
-      icon: MonitorCheck,
-    },
-  ];
-
   return (
-    <div className="relative min-h-screen w-full bg-black text-white flex flex-col justify-between p-6 md:p-12 overflow-y-auto">
-      {/* Subtle top brand header */}
-      <div className="max-w-6xl mx-auto w-full flex items-center justify-between border-b border-zinc-800 pb-4 mb-8">
-        <div className="flex items-center gap-3">
-          <span className="pill-capsule px-3 py-1 rounded-full text-emerald-400 font-bold text-sm">
-            Mobile
-          </span>
-          <span className="text-chrome font-black tracking-widest text-lg">AS</span>
-          <span className="text-chrome-bright font-bold text-lg">Webcam</span>
-        </div>
-        <div className="text-xs text-zinc-400 uppercase tracking-widest font-semibold">
-          Setup Workflow Guide
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
+      <div className="max-w-3xl w-full bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 shadow-2xl border border-white/20">
+        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
+          How It Works
+        </h2>
 
-      {/* Main Container */}
-      <div className="max-w-6xl mx-auto w-full my-auto py-4">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-chrome-bright mb-3">
-            How to Use Mobile AS Webcam
-          </h1>
-          <p className="text-zinc-400 text-base sm:text-lg max-w-2xl mx-auto">
-            Zero mobile installation. Pure web browser pairing. Direct WebRTC streaming to Windows virtual camera.
-          </p>
+        <div className="space-y-6 mb-8">
+          <div className="flex items-start gap-4 bg-white/5 rounded-xl p-6 border border-white/10">
+            <div className="flex-shrink-0 w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              1
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-lg mb-2">
+                Open on Your Computer
+              </h3>
+              <p className="text-blue-200">
+                This web application runs in your browser. Keep this tab open on your computer where you want to use the virtual camera.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 bg-white/5 rounded-xl p-6 border border-white/10">
+            <div className="flex-shrink-0 w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              2
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-lg mb-2">
+                Connect Your Phone
+              </h3>
+              <p className="text-blue-200">
+                Scan the QR code with your phone&apos;s camera or visit the URL on your mobile device. Your phone&apos;s camera will stream video to your computer.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 bg-white/5 rounded-xl p-6 border border-white/10">
+            <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              3
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-lg mb-2">
+                Install Virtual Camera Driver
+              </h3>
+              <p className="text-blue-200">
+                For the video to appear in video conferencing apps, you&apos;ll need a virtual camera driver. We recommend OBS Studio with Virtual Camera enabled - it&apos;s free and works instantly.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 bg-white/5 rounded-xl p-6 border border-white/10">
+            <div className="flex-shrink-0 w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              4
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-lg mb-2">
+                Use in Video Calls
+              </h3>
+              <p className="text-blue-200">
+                In Google Meet, Zoom, or Teams, select &quot;OBS Virtual Camera&quot; as your camera source. Your phone&apos;s camera feed will now appear in your video calls!
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* 6 Grid Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {steps.map((step) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={step.num}
-                className="group relative p-6 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.15)] flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-lg">
-                      {step.num}
-                    </div>
-                    <div className="p-2 rounded-xl bg-zinc-900 text-zinc-400 group-hover:text-emerald-400 transition-colors">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed">
-                    {step.desc}
-                  </p>
-                </div>
-                <div className="mt-4 pt-4 border-t border-zinc-900 flex items-center text-xs text-emerald-400 font-medium">
-                  <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-500" />
-                  <span>Requirement verified</span>
-                </div>
-              </div>
-            );
-          })}
+        <div className="bg-blue-500/20 rounded-xl p-6 mb-8 border border-blue-400/30">
+          <div className="flex items-start gap-3">
+            <Video className="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" />
+            <div>
+              <h4 className="text-white font-semibold mb-2">Important Note</h4>
+              <p className="text-blue-200 text-sm">
+                Due to browser security restrictions, websites cannot directly create virtual camera devices. You need either:
+              </p>
+              <ul className="text-blue-200 text-sm mt-2 space-y-1">
+                <li>• <strong>OBS Studio</strong> (Free, recommended) - Capture browser window and enable Virtual Camera</li>
+                <li>• <strong>Unity Capture</strong> - Third-party virtual camera driver</li>
+                <li>• <strong>Chrome Extension</strong> - Screen capture to existing virtual camera</li>
+              </ul>
+            </div>
+          </div>
         </div>
 
-        {/* Continue Action Button */}
-        <div className="mt-12 text-center flex justify-center">
-          <button
-            onClick={onContinue}
-            className="inline-flex items-center gap-3 px-10 py-4 rounded-2xl bg-emerald-500 text-black font-extrabold text-lg hover:bg-emerald-400 active:scale-95 transition-all shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:shadow-[0_0_45px_rgba(16,185,129,0.7)]"
-          >
-            <span>Continue to Application</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Footer Info */}
-      <div className="max-w-6xl mx-auto w-full pt-8 text-center text-xs text-zinc-500">
-        Compatible with Windows 10/11 • Microsoft Teams, Zoom, Google Meet, OBS Studio, Discord, Skype
+        <button
+          onClick={onContinue}
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        >
+          Continue to App
+          <ArrowRight className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );

@@ -1,13 +1,9 @@
 {
   "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/api/devices/route": "app/api/devices/route.js",
-  "/api/diagnostics/route": "app/api/diagnostics/route.js",
-  "/api/health/route": "app/api/health/route.js",
-  "/api/logs/route": "app/api/logs/route.js",
   "/api/pairing/route": "app/api/pairing/route.js",
-  "/api/settings/route": "app/api/settings/route.js",
   "/api/signaling/route": "app/api/signaling/route.js",
+  "/api/turn/route": "app/api/turn/route.js",
   "/mobile/page": "app/mobile/page.js",
   "/page": "app/page.js"
 }

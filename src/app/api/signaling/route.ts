@@ -1,98 +1,95 @@
-import { NextResponse } from "next/server";
-import { newId, pairingStore } from "@/lib/pairing-store";
-import { db } from "@/db";
-import { webrtcSignaling } from "@/db/schema";
-import { and, eq, gt } from "drizzle-orm";
-import { ensureSchema } from "@/db/ensure-schema";
+import { NextRequest, NextResponse } from 'next/server';
 
-const useDatabase = Boolean(process.env.DATABASE_URL);
+// In-memory store for signaling messages (in production, use Redis or WebSocket server)
+const signalingMessages = new Map<string, Array<{
+  type: string;
+  data: any;
+  timestamp: number;
+  from: 'desktop' | 'mobile';
+}>>();
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    if (useDatabase) await ensureSchema();
     const body = await request.json();
-    const { sessionId, sender, type, payload } = body;
-
-    if (!sessionId || !sender || !type || !payload) {
+    const { sessionId, type, data, from } = body;
+    
+    if (!sessionId || !type) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields (sessionId, sender, type, payload)" },
+        { success: false, error: 'Session ID and type required' },
         { status: 400 }
       );
     }
-
-    const id = newId("sig");
-    const message = {
-      id,
-      sessionId,
-      sender,
+    
+    const messages = signalingMessages.get(sessionId) || [];
+    messages.push({
       type,
-      payload,
-      createdAt: new Date(),
-    };
-    if (useDatabase) {
-      await db.insert(webrtcSignaling).values({
-        ...message,
-        payload: typeof payload === "string" ? payload : JSON.stringify(payload),
-      });
-    } else {
-      pairingStore.messages.push(message);
+      data,
+      timestamp: Date.now(),
+      from: from as 'desktop' | 'mobile',
+    });
+    
+    // Keep only last 50 messages per session
+    if (messages.length > 50) {
+      messages.shift();
     }
-
-    return NextResponse.json({ success: true, id });
-  } catch (err: any) {
+    
+    signalingMessages.set(sessionId, messages);
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error sending signaling message:', error);
     return NextResponse.json(
-      { success: false, error: err.message || "Failed to post signaling message" },
+      { success: false, error: 'Failed to send signaling message' },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: Request) {
-  try {
-    if (useDatabase) await ensureSchema();
-    const { searchParams } = new URL(request.url);
-    const sessionId = searchParams.get("sessionId");
-    const recipient = searchParams.get("recipient"); // target recipient e.g. 'desktop' means messages sent by 'mobile'
-    const since = searchParams.get("since"); // timestamp or ISO string
-
-    if (!sessionId) {
-      return NextResponse.json(
-        { success: false, error: "sessionId parameter is required" },
-        { status: 400 }
-      );
-    }
-
-    // Sender is opposite of recipient
-    const targetSender = recipient === "desktop" ? "mobile" : recipient === "mobile" ? "desktop" : undefined;
-
-    const sinceDate = since ? new Date(since) : null;
-    const messages = useDatabase
-      ? await db.select().from(webrtcSignaling).where(and(
-        eq(webrtcSignaling.sessionId, sessionId),
-        ...(targetSender ? [eq(webrtcSignaling.sender, targetSender)] : []),
-        ...(sinceDate && !isNaN(sinceDate.getTime()) ? [gt(webrtcSignaling.createdAt, sinceDate)] : [])
-      ))
-      : pairingStore.messages.filter((m) =>
-        m.sessionId === sessionId &&
-        (!targetSender || m.sender === targetSender) &&
-        (!sinceDate || isNaN(sinceDate.getTime()) || m.createdAt > sinceDate)
-      );
-    const parsedMessages = messages.map((m) => ({
-        id: m.id,
-        sessionId: m.sessionId,
-        sender: m.sender,
-        type: m.type,
-        payload: typeof m.payload === "string" ? JSON.parse(m.payload) : m.payload,
-        createdAt: m.createdAt.toISOString(),
-      }));
-
-    return NextResponse.json({
-      success: true,
-      messages: parsedMessages,
-    });
-  } catch (err: any) {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const sessionId = searchParams.get('sessionId');
+  const lastTimestamp = searchParams.get('lastTimestamp');
+  
+  if (!sessionId) {
     return NextResponse.json(
-      { success: false, error: err.message || "Failed to fetch signaling messages" },
+      { success: false, error: 'Session ID required' },
+      { status: 400 }
+    );
+  }
+  
+  const messages = signalingMessages.get(sessionId) || [];
+  
+  // Filter messages since last timestamp for polling
+  const filteredMessages = lastTimestamp
+    ? messages.filter(m => m.timestamp > parseInt(lastTimestamp))
+    : messages;
+  
+  // Clean old messages (older than 1 minute)
+  const now = Date.now();
+  const cleanedMessages = messages.filter(m => now - m.timestamp < 60000);
+  signalingMessages.set(sessionId, cleanedMessages);
+  
+  return NextResponse.json({
+    success: true,
+    messages: filteredMessages,
+    lastTimestamp: now,
+  });
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { sessionId } = body;
+    
+    if (sessionId) {
+      signalingMessages.delete(sessionId);
+    }
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error clearing signaling messages:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to clear signaling messages' },
       { status: 500 }
     );
   }

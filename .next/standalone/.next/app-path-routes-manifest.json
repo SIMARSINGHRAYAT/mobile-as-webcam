@@ -1,13 +1,9 @@
 {
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
-  "/api/devices/route": "/api/devices",
-  "/api/diagnostics/route": "/api/diagnostics",
-  "/api/health/route": "/api/health",
-  "/api/logs/route": "/api/logs",
   "/api/pairing/route": "/api/pairing",
-  "/api/settings/route": "/api/settings",
   "/api/signaling/route": "/api/signaling",
+  "/api/turn/route": "/api/turn",
   "/mobile/page": "/mobile",
   "/page": "/"
 }

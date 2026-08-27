@@ -42,46 +42,22 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
-      "page": "/api/devices",
-      "regex": "^/api/devices(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/devices(?:/)?$"
-    },
-    {
-      "page": "/api/diagnostics",
-      "regex": "^/api/diagnostics(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/diagnostics(?:/)?$"
-    },
-    {
-      "page": "/api/health",
-      "regex": "^/api/health(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/health(?:/)?$"
-    },
-    {
-      "page": "/api/logs",
-      "regex": "^/api/logs(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/logs(?:/)?$"
-    },
-    {
       "page": "/api/pairing",
       "regex": "^/api/pairing(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/pairing(?:/)?$"
     },
     {
-      "page": "/api/settings",
-      "regex": "^/api/settings(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/settings(?:/)?$"
-    },
-    {
       "page": "/api/signaling",
       "regex": "^/api/signaling(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/signaling(?:/)?$"
+    },
+    {
+      "page": "/api/turn",
+      "regex": "^/api/turn(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/turn(?:/)?$"
     },
     {
       "page": "/mobile",
