@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const os = require("os");
 const dgram = require("dgram");
@@ -9,6 +9,24 @@ let mainWindow;
 let nextServerProcess;
 const PORT = 3000; // You can dynamically find a free port if preferred
 const DEPLOYED_APP_URL = "https://mobile-as-webcam.vercel.app";
+
+function findObsPath() {
+  const candidates = [
+    "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe",
+    "C:\\Program Files (x86)\\obs-studio\\bin\\64bit\\obs64.exe",
+  ];
+  return candidates.find((candidate) => require("fs").existsSync(candidate));
+}
+
+ipcMain.handle("launch-obs", async () => {
+  const obsPath = findObsPath();
+  if (!obsPath) return { success: false, error: "OBS Studio is not installed." };
+  const { execFile } = require("child_process");
+  execFile(obsPath, [], { windowsHide: false }, (error) => {
+    if (error) console.error("Failed to launch OBS Studio", error);
+  });
+  return { success: true };
+});
 
 function getLanAddress() {
   return new Promise((resolve) => {
@@ -42,6 +60,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, "preload.js"),
     },
     autoHideMenuBar: true,
   });

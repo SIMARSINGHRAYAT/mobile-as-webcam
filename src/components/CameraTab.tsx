@@ -14,6 +14,14 @@ import {
   Zap,
 } from "lucide-react";
 
+declare global {
+  interface Window {
+    mobileAsWebcam?: {
+      launchObs: () => Promise<{ success: boolean; error?: string }>;
+    };
+  }
+}
+
 interface CameraTabProps {
   isConnected: boolean;
   videoRef?: React.RefObject<HTMLVideoElement | null>;
@@ -35,6 +43,16 @@ export function CameraTab({
   const [brightness, setBrightness] = useState<number>(100);
   const [contrast, setContrast] = useState<number>(100);
   const [saturation, setSaturation] = useState<number>(100);
+  const [obsStatus, setObsStatus] = useState<string>("");
+
+  const launchObs = async () => {
+    if (!window.mobileAsWebcam) {
+      setObsStatus("OBS launch is available in the Windows app.");
+      return;
+    }
+    const result = await window.mobileAsWebcam.launchObs();
+    setObsStatus(result.success ? "OBS opened. Start Virtual Camera there." : result.error || "Unable to open OBS.");
+  };
 
   const handleResolutionChange = (res: string) => {
     setResolution(res);
@@ -72,6 +90,14 @@ export function CameraTab({
           <MonitorCheck className="w-4 h-4" />
           <span>MOBILE as WEBCAM Endpoint Active</span>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+        <div className="text-xs text-emerald-200">Send this preview to Google Meet through OBS Virtual Camera.</div>
+        <button onClick={launchObs} className="shrink-0 px-4 py-2 rounded-xl bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400">
+          Start OBS Bridge
+        </button>
+        {obsStatus && <span className="text-xs text-emerald-300">{obsStatus}</span>}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

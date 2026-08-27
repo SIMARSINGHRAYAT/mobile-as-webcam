@@ -23,6 +23,8 @@ OBS Studio is the supported bridge for the current build:
 4. Click `Start Virtual Camera` in OBS.
 5. In Google Meet, open camera settings and select `OBS Virtual Camera`.
 
+The Windows app's **Start OBS Bridge** button launches OBS directly. The first time, add a Window Capture source for the app preview and save the OBS scene; later launches can reuse that scene.
+
 This exposes the received phone video to browser applications without pretending that the Electron app is already a native Windows camera device.
 
 ## Local development
