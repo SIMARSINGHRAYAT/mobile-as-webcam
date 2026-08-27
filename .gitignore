@@ -1,0 +1,14 @@
+node_modules/
+.next/
+dist/
+dist2/
+dist3/
+dist4/
+dist5/
+dist6/
+build/
+*.pfx
+*.cer
+*.tsbuildinfo
+.env*
+!.env.example
