@@ -1,5 +1,7 @@
 # MOBILE as WEBCAM
 
+Live deployment: https://mobile-as-webcam.vercel.app
+
 ## Vercel deployment
 
 1. Import this repository into Vercel with the Next.js framework.
