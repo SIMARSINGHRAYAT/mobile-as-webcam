@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { newId, pairingStore } from "@/lib/pairing-store";
+import { db } from "@/db";
+import { webrtcSignaling } from "@/db/schema";
+import { and, eq, gt } from "drizzle-orm";
+
+const useDatabase = Boolean(process.env.DATABASE_URL);
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +27,14 @@ export async function POST(request: Request) {
       payload,
       createdAt: new Date(),
     };
-    pairingStore.messages.push(message);
+    if (useDatabase) {
+      await db.insert(webrtcSignaling).values({
+        ...message,
+        payload: typeof payload === "string" ? payload : JSON.stringify(payload),
+      });
+    } else {
+      pairingStore.messages.push(message);
+    }
 
     return NextResponse.json({ success: true, id });
   } catch (err: any) {
@@ -51,17 +63,23 @@ export async function GET(request: Request) {
     const targetSender = recipient === "desktop" ? "mobile" : recipient === "mobile" ? "desktop" : undefined;
 
     const sinceDate = since ? new Date(since) : null;
-    const messages = pairingStore.messages.filter((m) =>
-      m.sessionId === sessionId &&
-      (!targetSender || m.sender === targetSender) &&
-      (!sinceDate || isNaN(sinceDate.getTime()) || m.createdAt > sinceDate)
-    );
+    const messages = useDatabase
+      ? await db.select().from(webrtcSignaling).where(and(
+        eq(webrtcSignaling.sessionId, sessionId),
+        ...(targetSender ? [eq(webrtcSignaling.sender, targetSender)] : []),
+        ...(sinceDate && !isNaN(sinceDate.getTime()) ? [gt(webrtcSignaling.createdAt, sinceDate)] : [])
+      ))
+      : pairingStore.messages.filter((m) =>
+        m.sessionId === sessionId &&
+        (!targetSender || m.sender === targetSender) &&
+        (!sinceDate || isNaN(sinceDate.getTime()) || m.createdAt > sinceDate)
+      );
     const parsedMessages = messages.map((m) => ({
         id: m.id,
         sessionId: m.sessionId,
         sender: m.sender,
         type: m.type,
-        payload: m.payload,
+        payload: typeof m.payload === "string" ? JSON.parse(m.payload) : m.payload,
         createdAt: m.createdAt.toISOString(),
       }));
 

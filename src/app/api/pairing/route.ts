@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { newId, pairingStore } from "@/lib/pairing-store";
+import { db } from "@/db";
+import { pairingSessions, connectionLogs } from "@/db/schema";
+import { and, desc, eq, gt } from "drizzle-orm";
+import crypto from "crypto";
+
+const useDatabase = Boolean(process.env.DATABASE_URL);
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +29,20 @@ export async function POST(request: Request) {
       expirationMinutes,
       connectionType,
     };
-    pairingStore.sessions.set(id, session);
+    if (useDatabase) {
+      await db.insert(pairingSessions).values(session);
+      await db.insert(connectionLogs).values({
+        id: newId("log"),
+        sessionId: id,
+        deviceName: "Windows Application",
+        connectionType,
+        event: "pairing_created",
+        details: `Pairing session ${id} created with ${expirationMinutes}m expiration`,
+        timestamp: now,
+      });
+    } else {
+      pairingStore.sessions.set(id, session);
+    }
 
     return NextResponse.json({
       success: true,
@@ -57,9 +76,13 @@ export async function GET(request: Request) {
     const now = new Date();
 
     if (sessionId || token) {
-      const session = sessionId
-        ? pairingStore.sessions.get(sessionId)
-        : [...pairingStore.sessions.values()].find((item) => item.token === token);
+      const session = useDatabase
+        ? (sessionId
+          ? (await db.select().from(pairingSessions).where(eq(pairingSessions.id, sessionId)))[0]
+          : (await db.select().from(pairingSessions).where(eq(pairingSessions.token, token!)))[0])
+        : sessionId
+          ? pairingStore.sessions.get(sessionId)
+          : [...pairingStore.sessions.values()].find((item) => item.token === token);
 
       if (!session) {
         return NextResponse.json(
@@ -70,7 +93,11 @@ export async function GET(request: Request) {
 
       // Check expiration
       if (new Date(session.expiresAt) < now && session.status === "active") {
-        session.status = "expired";
+        if (useDatabase) {
+          await db.update(pairingSessions).set({ status: "expired" }).where(eq(pairingSessions.id, session.id));
+        } else {
+          session.status = "expired";
+        }
       }
 
       return NextResponse.json({
@@ -80,9 +107,11 @@ export async function GET(request: Request) {
     }
 
     // Return latest active session
-    const activeSessions = [...pairingStore.sessions.values()]
-      .filter((item) => item.status === "active" && item.expiresAt > now)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const activeSessions = useDatabase
+      ? await db.select().from(pairingSessions).where(and(eq(pairingSessions.status, "active"), gt(pairingSessions.expiresAt, now))).orderBy(desc(pairingSessions.createdAt)).limit(1)
+      : [...pairingStore.sessions.values()]
+        .filter((item) => item.status === "active" && item.expiresAt > now)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return NextResponse.json({
       success: true,
@@ -109,7 +138,9 @@ export async function PATCH(request: Request) {
     }
 
     const now = new Date();
-    const session = pairingStore.sessions.get(sessionId);
+    const session = useDatabase
+      ? (await db.select().from(pairingSessions).where(eq(pairingSessions.id, sessionId)))[0]
+      : pairingStore.sessions.get(sessionId);
     if (!session) {
       return NextResponse.json(
         { success: false, error: "Session not found" },
@@ -138,7 +169,22 @@ export async function PATCH(request: Request) {
       if (clientIp) updateData.clientIp = clientIp;
     }
 
-    Object.assign(session, updateData);
+    if (useDatabase) {
+      await db.update(pairingSessions).set(updateData).where(eq(pairingSessions.id, sessionId));
+      if (status === "paired" && deviceName) {
+        await db.insert(connectionLogs).values({
+          id: crypto.randomUUID(),
+          sessionId,
+          deviceName,
+          connectionType: session.connectionType,
+          event: "phone_connected",
+          details: `Connected from ${browser || "Browser"} on ${platform || "Mobile"}`,
+          timestamp: now,
+        });
+      }
+    } else {
+      Object.assign(session, updateData);
+    }
 
     return NextResponse.json({ success: true, updated: true });
   } catch (err: any) {
