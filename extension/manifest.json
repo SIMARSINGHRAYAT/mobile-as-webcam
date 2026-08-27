@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Mobile as Webcam - Screen Capture",
+  "version": "1.0.0",
+  "description": "Share your screen or application windows with Mobile as Webcam application for streaming to video conferencing apps like Google Meet, Zoom, Teams, etc.",
+  "permissions": [
+    "desktopCapture",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://mobile-as-webcam.vercel.app/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Mobile as Webcam - Share Screen"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["capture.html", "capture.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

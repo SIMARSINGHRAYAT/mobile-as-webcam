@@ -14,14 +14,6 @@ import {
   Zap,
 } from "lucide-react";
 
-declare global {
-  interface Window {
-    mobileAsWebcam?: {
-      launchObs: () => Promise<{ success: boolean; error?: string }>;
-    };
-  }
-}
-
 interface CameraTabProps {
   isConnected: boolean;
   videoRef?: React.RefObject<HTMLVideoElement | null>;

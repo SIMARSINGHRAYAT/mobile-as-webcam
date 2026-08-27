@@ -2,30 +2,150 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const os = require("os");
 const dgram = require("dgram");
-const { spawn } = require("child_process");
+const { spawn, execFile } = require("child_process");
 const http = require("http");
+const fs = require("fs");
+const https = require("https");
+const { pipeline } = require("stream");
+const { promisify } = require("util");
+
+const streamPipeline = promisify(pipeline);
 
 let mainWindow;
 let nextServerProcess;
-const PORT = 3000; // You can dynamically find a free port if preferred
+let virtualCameraProcess;
+const PORT = 3000;
 const DEPLOYED_APP_URL = "https://mobile-as-webcam.vercel.app";
+const UNITY_CAPTURE_URL = "https://github.com/schellingb/UnityCapture/releases/download/v1.2.1/UnityCaptureInstall.exe";
+const VIRTUAL_CAMERA_DIR = path.join(app.getPath("userData"), "VirtualCameraDriver");
 
 function findObsPath() {
   const candidates = [
-    "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe",
-    "C:\\Program Files (x86)\\obs-studio\\bin\\64bit\\obs64.exe",
+    "C:\\\\Program Files\\\\obs-studio\\\\bin\\\\64bit\\\\obs64.exe",
+    "C:\\\\Program Files (x86)\\\\obs-studio\\\\bin\\\\64bit\\\\obs64.exe",
   ];
-  return candidates.find((candidate) => require("fs").existsSync(candidate));
+  return candidates.find((candidate) => fs.existsSync(candidate));
+}
+
+async function downloadVirtualCameraDriver() {
+  if (!fs.existsSync(VIRTUAL_CAMERA_DIR)) {
+    fs.mkdirSync(VIRTUAL_CAMERA_DIR, { recursive: true });
+  }
+  
+  const installerPath = path.join(VIRTUAL_CAMERA_DIR, "UnityCaptureInstall.exe");
+  
+  if (fs.existsSync(installerPath)) {
+    return installerPath;
+  }
+  
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(installerPath);
+    https.get(UNITY_CAPTURE_URL, (response) => {
+      if (response.statusCode === 302 || response.statusCode === 301) {
+        https.get(response.headers.location, (res) => {
+          res.pipe(file);
+          file.on("finish", () => {
+            file.close();
+            resolve(installerPath);
+          });
+        }).on("error", (err) => {
+          fs.unlink(installerPath, () => {});
+          reject(err);
+        });
+      } else {
+        response.pipe(file);
+        file.on("finish", () => {
+          file.close();
+          resolve(installerPath);
+        });
+      }
+    }).on("error", (err) => {
+      fs.unlink(installerPath, () => {});
+      reject(err);
+    });
+  });
+}
+
+async function installVirtualCameraDriver() {
+  try {
+    const installerPath = await downloadVirtualCameraDriver();
+    
+    return new Promise((resolve) => {
+      execFile(
+        installerPath,
+        ["/S"],
+        { windowsHide: true },
+        (error) => {
+          if (error) {
+            resolve({ success: false, error: "Failed to install virtual camera driver. Please run as administrator." });
+          } else {
+            resolve({ success: true, message: "Virtual camera driver installed successfully." });
+          }
+        }
+      );
+    });
+  } catch (err) {
+    return { success: false, error: `Download failed: ${err.message}` };
+  }
+}
+
+function isVirtualCameraInstalled() {
+  const registryPaths = [
+    "HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\UnityCapture",
+    "C:\\\\Program Files\\\\UnityCapture",
+    "C:\\\\Program Files (x86)\\\\UnityCapture",
+  ];
+  
+  for (const regPath of registryPaths) {
+    if (regPath.startsWith("HKEY")) {
+      try {
+        const { execSync } = require("child_process");
+        execSync(`reg query "${regPath}"`, { stdio: "ignore" });
+        return true;
+      } catch {
+        continue;
+      }
+    } else if (fs.existsSync(regPath)) {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 ipcMain.handle("launch-obs", async () => {
   const obsPath = findObsPath();
   if (!obsPath) return { success: false, error: "OBS Studio is not installed." };
-  const { execFile } = require("child_process");
   execFile(obsPath, [], { cwd: path.dirname(obsPath), windowsHide: false }, (error) => {
     if (error) console.error("Failed to launch OBS Studio", error);
   });
   return { success: true };
+});
+
+ipcMain.handle("install-virtual-camera", async () => {
+  return await installVirtualCameraDriver();
+});
+
+ipcMain.handle("check-virtual-camera", async () => {
+  return { installed: isVirtualCameraInstalled() };
+});
+
+ipcMain.handle("launch-virtual-camera-app", async () => {
+  const appPaths = [
+    "C:\\\\Program Files\\\\UnityCapture\\\\UnityCaptureFilterConfig.exe",
+    "C:\\\\Program Files (x86)\\\\UnityCapture\\\\UnityCaptureFilterConfig.exe",
+  ];
+  
+  for (const appPath of appPaths) {
+    if (fs.existsSync(appPath)) {
+      execFile(appPath, [], { windowsHide: false }, (error) => {
+        if (error) console.error("Failed to launch Virtual Camera Config", error);
+      });
+      return { success: true };
+    }
+  }
+  
+  return { success: false, error: "Virtual Camera configuration tool not found." };
 });
 
 function getLanAddress() {

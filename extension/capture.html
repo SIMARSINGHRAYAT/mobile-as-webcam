@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Capture - Mobile as Webcam</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: #10b981;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      color: #a1a1aa;
+      margin-bottom: 20px;
+    }
+    
+    video {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 12px;
+      background: #000;
+      border: 2px solid #10b981;
+      margin-bottom: 20px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #059669;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    
+    .status {
+      padding: 10px 20px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📱 Screen Capture Active</h1>
+    <p>Your screen is being shared. Keep this tab open while using video conferencing apps.</p>
+    
+    <video id="preview" autoplay muted playsinline></video>
+    
+    <div class="controls">
+      <button class="btn-primary" id="startBtn">Start Capture</button>
+      <button class="btn-danger" id="stopBtn" style="display: none;">Stop Capture</button>
+    </div>
+    
+    <div class="status" id="status">Ready to capture</div>
+  </div>
+  
+  <script src="capture.js"></script>
+</body>
+</html>

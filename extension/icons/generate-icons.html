@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate Extension Icons</title>
+</head>
+<body>
+  <h1>Icon Generator for Mobile as Webcam Extension</h1>
+  <p>Open this file in a browser to generate PNG icons from SVG</p>
+  <canvas id="canvas16" width="16" height="16"></canvas>
+  <canvas id="canvas48" width="48" height="48"></canvas>
+  <canvas id="canvas128" width="128" height="128"></canvas>
+  
+  <script>
+    const sizes = [16, 48, 128];
+    
+    sizes.forEach(size => {
+      const canvas = document.getElementById(`canvas${size}`);
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Rounded corners effect (simplified)
+      ctx.fillStyle = '#10b981';
+      const radius = size * 0.15;
+      
+      // Phone emoji
+      ctx.font = `${size * 0.6}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'white';
+      ctx.fillText('📱', size/2, size/2 + size*0.05);
+      
+      // Download link
+      const link = document.createElement('a');
+      link.download = `icon${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.textContent = `Download icon${size}.png`;
+      link.style.display = 'block';
+      link.style.margin = '10px';
+      document.body.appendChild(link);
+    });
+  </script>
+</body>
+</html>
