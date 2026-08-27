@@ -19,6 +19,7 @@ export type NavTab =
   | "dashboard"
   | "connect"
   | "camera"
+  | "obs"
   | "microphone"
   | "devices"
   | "connections"
@@ -38,6 +39,7 @@ export function Sidebar({ activeTab, onSelectTab, isConnected }: SidebarProps) {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "connect", label: "Connect Device", icon: QrCode },
     { id: "camera", label: "Camera", icon: Camera },
+    { id: "obs", label: "OBS Bridge", icon: Radio },
     { id: "devices", label: "Devices", icon: Smartphone },
     { id: "connections", label: "Connections", icon: History },
     { id: "diagnostics", label: "Diagnostics", icon: Activity },

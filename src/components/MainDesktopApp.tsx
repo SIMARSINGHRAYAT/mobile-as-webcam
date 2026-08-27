@@ -6,6 +6,7 @@ import { TopBar } from "./TopBar";
 import { DashboardTab } from "./DashboardTab";
 import { ConnectDeviceTab } from "./ConnectDeviceTab";
 import { CameraTab } from "./CameraTab";
+import { OBSBridgeTab } from "./OBSBridgeTab";
 import { DevicesTab } from "./DevicesTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { DiagnosticsTab } from "./DiagnosticsTab";
@@ -99,6 +100,7 @@ export function MainDesktopApp() {
     setIsConnected(true);
     setConnectedDeviceName("Mobile Phone");
     activeSessionIdRef.current = sessionData.id;
+    setActiveTab("obs");
     if (signalingPollRef.current) clearInterval(signalingPollRef.current);
     peerConnectionRef.current?.close();
     peerConnectionRef.current = null;
@@ -227,6 +229,10 @@ export function MainDesktopApp() {
                 }).catch(() => {});
               }}
             />
+          )}
+
+          {activeTab === "obs" && (
+            <OBSBridgeTab isConnected={isConnected} videoRef={videoRef} />
           )}
 
 

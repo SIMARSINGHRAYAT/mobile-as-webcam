@@ -27,6 +27,8 @@ export function TopBar({
         return "Connect Device & QR Pairing";
       case "camera":
         return "Camera Stream & Feed Pipeline";
+      case "obs":
+        return "OBS Virtual Camera Bridge";
       case "microphone":
         return "Microphone Audio Endpoint";
       case "devices":
