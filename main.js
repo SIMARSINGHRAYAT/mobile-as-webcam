@@ -22,7 +22,7 @@ ipcMain.handle("launch-obs", async () => {
   const obsPath = findObsPath();
   if (!obsPath) return { success: false, error: "OBS Studio is not installed." };
   const { execFile } = require("child_process");
-  execFile(obsPath, [], { windowsHide: false }, (error) => {
+  execFile(obsPath, [], { cwd: path.dirname(obsPath), windowsHide: false }, (error) => {
     if (error) console.error("Failed to launch OBS Studio", error);
   });
   return { success: true };

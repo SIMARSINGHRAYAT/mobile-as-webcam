@@ -44,6 +44,14 @@ export function CameraTab({
   const [contrast, setContrast] = useState<number>(100);
   const [saturation, setSaturation] = useState<number>(100);
   const [obsStatus, setObsStatus] = useState<string>("");
+  const [videoAspectRatio, setVideoAspectRatio] = useState("16 / 9");
+
+  const handleVideoMetadata = () => {
+    const video = videoRef?.current;
+    if (video?.videoWidth && video.videoHeight) {
+      setVideoAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
+    }
+  };
 
   const launchObs = async () => {
     if (!window.mobileAsWebcam) {
@@ -113,15 +121,17 @@ export function CameraTab({
             </span>
           </div>
 
-          <div className="relative w-full aspect-video bg-black rounded-xl border border-zinc-800 overflow-hidden flex items-center justify-center">
+          <div className="relative w-full max-h-[70vh] bg-black rounded-xl border border-zinc-800 overflow-hidden flex items-center justify-center">
             {isConnected ? (
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 muted
+                onLoadedMetadata={handleVideoMetadata}
                 className="w-full h-full object-contain transition-all"
                 style={{
+                  aspectRatio: videoAspectRatio,
                   transform: isMirrored ? "scaleX(-1)" : "none",
                   filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
                 }}

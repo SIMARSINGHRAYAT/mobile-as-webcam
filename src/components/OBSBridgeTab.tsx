@@ -10,6 +10,14 @@ interface OBSBridgeTabProps {
 
 export function OBSBridgeTab({ isConnected, videoRef }: OBSBridgeTabProps) {
   const [status, setStatus] = useState("");
+  const [videoAspectRatio, setVideoAspectRatio] = useState("16 / 9");
+
+  const handleVideoMetadata = () => {
+    const video = videoRef?.current;
+    if (video?.videoWidth && video.videoHeight) {
+      setVideoAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
+    }
+  };
 
   const launchObs = async () => {
     if (!window.mobileAsWebcam) {
@@ -38,9 +46,9 @@ export function OBSBridgeTab({ isConnected, videoRef }: OBSBridgeTabProps) {
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>{isConnected ? "LIVE PHONE CAMERA PREVIEW" : "WAITING FOR PHONE"}</span>
           </div>
-          <div className="aspect-video rounded-xl bg-black border border-zinc-800 overflow-hidden flex items-center justify-center">
+          <div className="max-h-[70vh] rounded-xl bg-black border border-zinc-800 overflow-hidden flex items-center justify-center">
             {isConnected ? (
-              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-contain" />
+              <video ref={videoRef} autoPlay playsInline muted onLoadedMetadata={handleVideoMetadata} className="w-full h-full object-contain" style={{ aspectRatio: videoAspectRatio }} />
             ) : (
               <span className="text-sm text-zinc-500">Pair your phone to start the preview.</span>
             )}
