@@ -3,11 +3,13 @@ import { newId, pairingStore } from "@/lib/pairing-store";
 import { db } from "@/db";
 import { webrtcSignaling } from "@/db/schema";
 import { and, eq, gt } from "drizzle-orm";
+import { ensureSchema } from "@/db/ensure-schema";
 
 const useDatabase = Boolean(process.env.DATABASE_URL);
 
 export async function POST(request: Request) {
   try {
+    if (useDatabase) await ensureSchema();
     const body = await request.json();
     const { sessionId, sender, type, payload } = body;
 
@@ -47,6 +49,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
+    if (useDatabase) await ensureSchema();
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("sessionId");
     const recipient = searchParams.get("recipient"); // target recipient e.g. 'desktop' means messages sent by 'mobile'

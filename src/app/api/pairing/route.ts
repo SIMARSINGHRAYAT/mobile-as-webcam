@@ -4,11 +4,13 @@ import { db } from "@/db";
 import { pairingSessions, connectionLogs } from "@/db/schema";
 import { and, desc, eq, gt } from "drizzle-orm";
 import crypto from "crypto";
+import { ensureSchema } from "@/db/ensure-schema";
 
 const useDatabase = Boolean(process.env.DATABASE_URL);
 
 export async function POST(request: Request) {
   try {
+    if (useDatabase) await ensureSchema();
     const body = await request.json().catch(() => ({}));
     const expirationMinutes = Number(body.expirationMinutes) || 5;
     const connectionType = body.connectionType || "same_wifi";
@@ -69,6 +71,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
+    if (useDatabase) await ensureSchema();
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("id");
     const token = searchParams.get("token");
@@ -127,6 +130,7 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    if (useDatabase) await ensureSchema();
     const body = await request.json();
     const { sessionId, token, status, deviceName, browser, platform, clientIp } = body;
 
