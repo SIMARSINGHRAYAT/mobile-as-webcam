@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import {
   Camera,
@@ -192,6 +193,13 @@ function MobileWebcamContent() {
                 credential: process.env.NEXT_PUBLIC_TURN_PASSWORD,
               }]
             : []),
+          ...(process.env.NEXT_PUBLIC_TURN_URL
+            ? [{
+                urls: process.env.NEXT_PUBLIC_TURN_URL,
+                username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+                credential: process.env.NEXT_PUBLIC_TURN_PASSWORD,
+              }]
+            : []),
         ],
       });
       peerConnectionRef.current = pc;
@@ -314,11 +322,8 @@ function MobileWebcamContent() {
       {/* Top Mobile Bar */}
       <div className="w-full flex items-center justify-between border-b border-zinc-800 pb-3">
         <div className="flex items-center gap-2">
-          <span className="pill-capsule px-2.5 py-0.5 rounded-full text-emerald-400 font-extrabold text-xs">
-            Mobile
-          </span>
-          <span className="text-chrome font-black tracking-widest text-sm">AS</span>
-          <span className="text-chrome-bright font-bold text-sm">Webcam</span>
+          <Image src="/logo.png" alt="MOBILE as WEBCAM" width={32} height={32} className="h-8 w-8 object-contain" />
+          <span className="text-chrome font-black tracking-wide text-sm">MOBILE as WEBCAM</span>
         </div>
 
         <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
@@ -473,7 +478,7 @@ function MobileWebcamContent() {
 
       {/* Footer */}
       <div className="w-full text-center text-[10px] text-zinc-500 font-mono pt-4 border-t border-zinc-900">
-        Mobile AS Webcam • WebRTC Encrypted Channel
+        MOBILE as WEBCAM • WebRTC Encrypted Channel
       </div>
     </div>
   );

@@ -13,7 +13,6 @@ import {
   Check,
   ShieldCheck,
   Smartphone,
-  ExternalLink,
 } from "lucide-react";
 
 interface PairingSessionData {
@@ -354,24 +353,6 @@ export function ConnectDeviceTab({
             </div>
           </div>
 
-          {/* Quick Simulation Link for Sandbox Testing */}
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 text-emerald-400">
-              <Smartphone className="w-4 h-4" />
-              <span>Test mobile browser pairing page in a new browser window:</span>
-            </div>
-            {mobileUrl && (
-              <a
-                href={mobileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 rounded-lg bg-emerald-500 text-black font-bold flex items-center gap-1 hover:bg-emerald-400 transition-all"
-              >
-                <span>Open Mobile Interface</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            )}
-          </div>
         </div>
       </div>
     </div>

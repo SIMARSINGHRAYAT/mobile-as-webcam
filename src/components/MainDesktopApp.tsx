@@ -47,6 +47,13 @@ export function MainDesktopApp() {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
         { urls: "stun:stun1.l.google.com:19302" },
+        ...(process.env.NEXT_PUBLIC_TURN_URL
+          ? [{
+              urls: process.env.NEXT_PUBLIC_TURN_URL,
+              username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+              credential: process.env.NEXT_PUBLIC_TURN_PASSWORD,
+            }]
+          : []),
       ],
     });
     peerConnectionRef.current = pc;
@@ -92,13 +99,13 @@ export function MainDesktopApp() {
     setIsConnected(true);
     setConnectedDeviceName("Mobile Phone");
     activeSessionIdRef.current = sessionData.id;
+    if (signalingPollRef.current) clearInterval(signalingPollRef.current);
+    peerConnectionRef.current?.close();
+    peerConnectionRef.current = null;
     void startDesktopReceiver(sessionData.id);
 
     // Start Telemetry stats simulation from real connection
     if (durationTimerRef.current) clearInterval(durationTimerRef.current);
-    if (signalingPollRef.current) clearInterval(signalingPollRef.current);
-    peerConnectionRef.current?.close();
-    peerConnectionRef.current = null;
     if (videoRef.current) videoRef.current.srcObject = null;
     durationTimerRef.current = setInterval(() => {
       setStats((prev) => {
