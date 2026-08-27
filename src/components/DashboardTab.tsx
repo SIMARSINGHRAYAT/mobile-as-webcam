@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import {
   QrCode,
   Video,
-  Mic,
   Activity,
   CheckCircle2,
   AlertCircle,
@@ -69,7 +69,7 @@ export function DashboardTab({
                 : "bg-zinc-900 border-zinc-800 text-zinc-500"
             }`}
           >
-            <Radio className={`w-6 h-6 ${isConnected ? "animate-pulse" : ""}`} />
+            <Image src="/logo.png" alt="MOBILE as WEBCAM" width={30} height={30} className="w-7 h-7 object-contain" />
           </div>
           <div>
             <div className="text-xs uppercase tracking-widest text-zinc-400 font-mono">
@@ -153,20 +153,7 @@ export function DashboardTab({
                   <Video className="w-4 h-4 text-emerald-400" />
                   <div>
                     <div className="text-xs font-bold text-white">Virtual Camera Driver</div>
-                    <div className="text-[11px] text-zinc-400 font-mono">Mobile AS Webcam</div>
-                  </div>
-                </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">
-                  READY
-                </span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/60 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Mic className="w-4 h-4 text-emerald-400" />
-                  <div>
-                    <div className="text-xs font-bold text-white">Virtual Audio Endpoint</div>
-                    <div className="text-[11px] text-zinc-400 font-mono">Mobile AS Microphone</div>
+                    <div className="text-[11px] text-zinc-400 font-mono">MOBILE as WEBCAM</div>
                   </div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">
@@ -224,7 +211,7 @@ export function DashboardTab({
                 className="w-full h-full object-contain bg-black"
               />
               <div className="absolute top-3 left-3 px-3 py-1 rounded-lg bg-black/80 backdrop-blur border border-zinc-700/50 text-[11px] font-mono text-emerald-400">
-                Feeding: Mobile AS Webcam Driver
+                Feeding: MOBILE as WEBCAM Driver
               </div>
             </div>
           </div>
@@ -279,24 +266,6 @@ export function DashboardTab({
               </div>
             </div>
 
-            {/* Audio Indicator */}
-            <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
-                <span className="flex items-center gap-1.5">
-                  <Mic className="w-3.5 h-3.5 text-emerald-400" />
-                  Audio Stream
-                </span>
-                <span className="text-emerald-400 font-mono">
-                  {stats?.audioActive ? "ACTIVE" : "MUTED"}
-                </span>
-              </div>
-              <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
-                <div
-                  className="h-full bg-emerald-500 transition-all duration-100"
-                  style={{ width: `${stats?.audioLevel ?? 0}%` }}
-                />
-              </div>
-            </div>
           </div>
         </div>
       )}

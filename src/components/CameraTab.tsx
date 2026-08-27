@@ -70,7 +70,7 @@ export function CameraTab({
         </div>
         <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold font-mono">
           <MonitorCheck className="w-4 h-4" />
-          <span>Mobile AS Webcam Endpoint Active</span>
+          <span>MOBILE as WEBCAM Endpoint Active</span>
         </div>
       </div>
 

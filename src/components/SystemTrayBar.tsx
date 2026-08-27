@@ -50,7 +50,7 @@ export function SystemTrayBar({
               {isConnected ? connectedDeviceName || "Phone Stream Active" : "No Device Connected"}
             </div>
             <div className="text-[10px] text-zinc-400 font-mono">
-              Driver: Mobile AS Webcam (Ready)
+              Driver: MOBILE as WEBCAM (Ready)
             </div>
           </div>
 

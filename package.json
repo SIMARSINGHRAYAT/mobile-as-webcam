@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.mobileaswebcam.app",
-    "productName": "Mobile as Webcam",
+    "productName": "MOBILE as WEBCAM",
     "directories": {
       "output": "dist6"
     },

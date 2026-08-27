@@ -6,8 +6,6 @@ import {
   Camera,
   Video,
   VideoOff,
-  Mic,
-  MicOff,
   RefreshCw,
   ShieldCheck,
   Smartphone,
@@ -37,7 +35,6 @@ function MobileWebcamContent() {
   const [resolution, setResolution] = useState<string>("720p");
   const [fps, setFps] = useState<number>(30);
   const [isMirrored, setIsMirrored] = useState(false);
-  const [isMicEnabled, setIsMicEnabled] = useState(true);
 
   // WebRTC PeerConnection
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -67,6 +64,15 @@ function MobileWebcamContent() {
       isSecureContext: secure,
     });
   }, []);
+
+  useEffect(() => {
+    if (browserCapabilities.isSecureContext && browserCapabilities.getUserMediaSupported) return;
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      setPermissionError("Camera access requires HTTPS. Open the deployed Vercel HTTPS link from the QR code.");
+    } else if (!browserCapabilities.getUserMediaSupported) {
+      setPermissionError("This browser does not support camera capture. Open the link in Chrome or Safari.");
+    }
+  }, [browserCapabilities]);
 
   // Validate session token with backend
   useEffect(() => {
@@ -108,30 +114,30 @@ function MobileWebcamContent() {
   }, [sessionId, token]);
 
   // Request getUserMedia
-  const startCamera = async () => {
+  const startCamera = async (requestedFacingMode = facingMode, requestedResolution = resolution) => {
     setPermissionError(null);
     try {
       let width = 1280;
       let height = 720;
-      if (resolution === "360p") {
+      if (requestedResolution === "360p") {
         width = 640;
         height = 360;
-      } else if (resolution === "480p") {
+      } else if (requestedResolution === "480p") {
         width = 854;
         height = 480;
-      } else if (resolution === "1080p") {
+      } else if (requestedResolution === "1080p") {
         width = 1920;
         height = 1080;
       }
 
       const constraints: MediaStreamConstraints = {
         video: {
-          facingMode: { ideal: facingMode },
+          facingMode: { ideal: requestedFacingMode },
           width: { ideal: width },
           height: { ideal: height },
           frameRate: { ideal: fps },
         },
-        audio: isMicEnabled,
+        audio: false,
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -236,6 +242,27 @@ function MobileWebcamContent() {
                   await pc.setRemoteDescription(new RTCSessionDescription(msg.payload));
                 } else if (msg.type === "candidate") {
                   await pc.addIceCandidate(new RTCIceCandidate(msg.payload));
+                } else if (msg.type === "control") {
+                  const command = msg.payload?.command;
+                  const data = msg.payload?.data;
+                  if (command === "switch_camera" && data?.facingMode) {
+                    setFacingMode(data.facingMode);
+                    const track = mediaStreamRef.current?.getVideoTracks()[0];
+                    await track?.applyConstraints({ facingMode: { ideal: data.facingMode } });
+                  } else if (command === "set_resolution" && data?.resolution) {
+                    setResolution(data.resolution);
+                    const dimensions: Record<string, { width: number; height: number }> = {
+                      "360p": { width: 640, height: 360 },
+                      "480p": { width: 854, height: 480 },
+                      "720p": { width: 1280, height: 720 },
+                      "1080p": { width: 1920, height: 1080 },
+                    };
+                    const size = dimensions[data.resolution];
+                    if (size) await mediaStreamRef.current?.getVideoTracks()[0]?.applyConstraints(size);
+                  } else if (command === "set_fps" && data?.fps) {
+                    setFps(data.fps);
+                    await mediaStreamRef.current?.getVideoTracks()[0]?.applyConstraints({ frameRate: { ideal: data.fps } });
+                  }
                 }
               }
             }
@@ -254,7 +281,7 @@ function MobileWebcamContent() {
     setFacingMode(nextFacing);
     if (isStreaming) {
       stopCamera();
-      setTimeout(() => startCamera(), 300);
+      setTimeout(() => startCamera(nextFacing), 300);
     }
   };
 
@@ -358,10 +385,16 @@ function MobileWebcamContent() {
               </div>
             )}
 
+            {permissionError && !isStreaming && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs leading-relaxed">
+                {permissionError}
+              </div>
+            )}
+
             {/* Stream Action Button */}
             {!isStreaming ? (
               <button
-                onClick={startCamera}
+                onClick={() => startCamera()}
                 className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-base transition-all shadow-[0_0_25px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2"
               >
                 <Video className="w-5 h-5" />
@@ -413,7 +446,7 @@ function MobileWebcamContent() {
                       setResolution(res);
                       if (isStreaming) {
                         stopCamera();
-                        setTimeout(() => startCamera(), 300);
+                        setTimeout(() => startCamera(facingMode, res), 300);
                       }
                     }}
                     className={`py-1.5 rounded-lg text-[11px] font-bold border ${

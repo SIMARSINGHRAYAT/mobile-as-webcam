@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mobile AS Webcam - Turn Your Phone Browser Into a High-Definition Windows Virtual Camera",
+  title: "MOBILE as WEBCAM",
   description: "Secure, low-latency mobile browser webcam streaming for Windows. Compatible with Microsoft Teams, Zoom, Google Meet, OBS Studio, and Discord.",
 };
 

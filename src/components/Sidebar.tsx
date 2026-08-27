@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import {
   LayoutDashboard,
   QrCode,
   Camera,
-  Mic,
   Smartphone,
   History,
   Activity,
@@ -38,7 +38,6 @@ export function Sidebar({ activeTab, onSelectTab, isConnected }: SidebarProps) {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "connect", label: "Connect Device", icon: QrCode },
     { id: "camera", label: "Camera", icon: Camera },
-    { id: "microphone", label: "Microphone", icon: Mic },
     { id: "devices", label: "Devices", icon: Smartphone },
     { id: "connections", label: "Connections", icon: History },
     { id: "diagnostics", label: "Diagnostics", icon: Activity },
@@ -51,12 +50,9 @@ export function Sidebar({ activeTab, onSelectTab, isConnected }: SidebarProps) {
     <aside className="w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col justify-between select-none">
       {/* Brand Header */}
       <div className="p-5 border-b border-zinc-900">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="pill-capsule px-2.5 py-0.5 rounded-full text-emerald-400 font-extrabold text-xs">
-            Mobile
-          </span>
-          <span className="text-chrome font-black tracking-widest text-base">AS</span>
-          <span className="text-chrome-bright font-extrabold text-base">Webcam</span>
+        <div className="flex items-center gap-3 mb-1">
+          <Image src="/logo.png" alt="MOBILE as WEBCAM" width={42} height={42} className="h-10 w-10 object-contain" />
+          <span className="text-chrome font-black tracking-wide text-sm">MOBILE as WEBCAM</span>
         </div>
         <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-mono mt-2">
           <span

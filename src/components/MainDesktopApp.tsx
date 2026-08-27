@@ -6,7 +6,6 @@ import { TopBar } from "./TopBar";
 import { DashboardTab } from "./DashboardTab";
 import { ConnectDeviceTab } from "./ConnectDeviceTab";
 import { CameraTab } from "./CameraTab";
-import { MicrophoneTab } from "./MicrophoneTab";
 import { DevicesTab } from "./DevicesTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { DiagnosticsTab } from "./DiagnosticsTab";
@@ -40,15 +39,67 @@ export function MainDesktopApp() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const durationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const activeSessionIdRef = useRef<string | null>(null);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+  const signalingPollRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startDesktopReceiver = async (sessionId: string) => {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+      ],
+    });
+    peerConnectionRef.current = pc;
+    pc.ontrack = (event) => {
+      if (videoRef.current && event.streams[0]) videoRef.current.srcObject = event.streams[0];
+    };
+    pc.onicecandidate = (event) => {
+      if (!event.candidate) return;
+      fetch("/api/signaling", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, sender: "desktop", type: "candidate", payload: event.candidate }),
+      }).catch(() => {});
+    };
+    let lastCheck = new Date(0).toISOString();
+    signalingPollRef.current = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/signaling?sessionId=${sessionId}&recipient=desktop&since=${lastCheck}`);
+        const data = await response.json();
+        for (const message of data.messages || []) {
+          lastCheck = message.createdAt;
+          if (message.type === "offer" && !pc.remoteDescription) {
+            await pc.setRemoteDescription(message.payload);
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            await fetch("/api/signaling", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ sessionId, sender: "desktop", type: "answer", payload: answer }),
+            });
+          } else if (message.type === "candidate") {
+            await pc.addIceCandidate(message.payload);
+          }
+        }
+      } catch (error) {
+        console.error("Desktop WebRTC signaling error", error);
+      }
+    }, 500);
+  };
 
   // When session is paired in ConnectDeviceTab
   const handleSessionPaired = (sessionData: any) => {
     setIsConnected(true);
     setConnectedDeviceName("Mobile Phone");
     activeSessionIdRef.current = sessionData.id;
+    void startDesktopReceiver(sessionData.id);
 
     // Start Telemetry stats simulation from real connection
     if (durationTimerRef.current) clearInterval(durationTimerRef.current);
+    if (signalingPollRef.current) clearInterval(signalingPollRef.current);
+    peerConnectionRef.current?.close();
+    peerConnectionRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
     durationTimerRef.current = setInterval(() => {
       setStats((prev) => {
         const nextFrames = prev.framesReceived + Math.floor(25 + Math.random() * 6);
@@ -152,16 +203,25 @@ export function MainDesktopApp() {
           )}
 
           {activeTab === "camera" && (
-            <CameraTab isConnected={isConnected} videoRef={videoRef} />
-          )}
-
-          {activeTab === "microphone" && (
-            <MicrophoneTab
+            <CameraTab
               isConnected={isConnected}
-              audioActive={stats.audioActive}
-              audioLevel={stats.audioLevel}
+              videoRef={videoRef}
+              onSendControlCommand={(type, data) => {
+                if (!activeSessionIdRef.current) return;
+                fetch("/api/signaling", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    sessionId: activeSessionIdRef.current,
+                    sender: "desktop",
+                    type: "control",
+                    payload: { command: type, data },
+                  }),
+                }).catch(() => {});
+              }}
             />
           )}
+
 
           {activeTab === "devices" && <DevicesTab />}
 
