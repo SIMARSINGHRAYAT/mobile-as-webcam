@@ -152,12 +152,12 @@ export function DashboardTab({
                 <div className="flex items-center gap-3">
                   <Video className="w-4 h-4 text-emerald-400" />
                   <div>
-                    <div className="text-xs font-bold text-white">Virtual Camera Driver</div>
+                    <div className="text-xs font-bold text-white">Camera Preview</div>
                     <div className="text-[11px] text-zinc-400 font-mono">MOBILE as WEBCAM</div>
                   </div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">
-                  READY
+                  PREVIEW ONLY
                 </span>
               </div>
 

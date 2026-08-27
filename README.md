@@ -11,6 +11,8 @@ Live deployment: https://mobile-as-webcam.vercel.app
 
 The mobile camera page must be opened through the Vercel HTTPS URL. For phones and PCs on different networks, configure `NEXT_PUBLIC_TURN_URL`, `NEXT_PUBLIC_TURN_USERNAME`, and `NEXT_PUBLIC_TURN_PASSWORD` with a TURN provider. STUN alone is not reliable across NATs.
 
+The desktop app currently displays the received camera stream in its own preview. Google Meet, Zoom, Teams, and OBS require a native Windows virtual-camera driver; Partner Center publication alone does not create that device.
+
 ## Local development
 
 ```bash

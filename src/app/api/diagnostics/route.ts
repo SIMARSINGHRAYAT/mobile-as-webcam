@@ -90,17 +90,8 @@ export async function POST() {
       id: "vcam_registration",
       name: "Mobile AS Webcam Virtual Camera",
       category: "Windows Bridge",
-      status: "PASS",
-      message: "Windows Media Foundation Virtual Camera endpoint 'Mobile AS Webcam' registered and ready for Teams/Zoom/OBS.",
-    });
-
-    // 7. Windows Virtual Microphone Endpoint
-    tests.push({
-      id: "vmic_registration",
-      name: "Mobile AS Microphone Endpoint",
-      category: "Windows Bridge",
-      status: "PASS",
-      message: "Windows Audio Endpoint 'Mobile AS Microphone' ready for audio stream injection.",
+      status: "WARNING",
+      message: "In-app camera preview is available. A native Windows virtual-camera driver is required for Teams, Meet, Zoom, or OBS.",
     });
 
     // 8. HTTPS / Secure Context
